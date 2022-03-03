@@ -1,0 +1,87 @@
+# name:     README
+# author:   nbehrnd@yahoo.com
+# license:  GPLv2, 2022
+# date:     <2022-03-03 Thu>
+# edit:
+
+* Intent
+
+  Jmol allows to read multiple models of a ~.sdf~ file, and to assign SMILES and
+  InChI strings locally.  The locally assigned InChI string may be sent to a NIH
+  server to reconstruct a ~.sdf~ which Jmol may assign again SMILES and InChI.
+  For the purpose of this project, this cycle is called "InChI round trip".
+
+  The question of this project is: Do SMILES assigned by Jmol /prior/ and
+  /after/ the conversion to InChI and the reconstruction of the structure
+  represent the same structure?  If the SMILES strings are found to be invariant
+  in during The "InChI round trip", the processing qualifies as "successful",
+  else as "failing".
+
+  Jmol is aware of InChI with a fixed H-layer which allows Jmol to identify
+  tautomers.  Though InChI with fixed H-layer are not standard InChI, their use
+  appears as more conservative (i.e., potentially retaining more information)
+  than standard InChI.
+
+* Tools at disposition
+
+  + DataWarrior (basic version 5.5.0 for Linux, updated by <2022-01-24 Mon>);
+    generation of libraries of random/drug-like molecules, exported as ~.sdf~
+    (v2000 format).
+  + Jmol (by <2022-03-03 Thu>, this is version 14.32.28)
+  + ~jmol_sdf_b.spt~, a script to run with Jmol for the local assignment of
+    SMILES, InChI, interaction of Jmol with the remote NIH server (commitsha
+    ~31794ca~, project [[https://github.com/nbehrnd/inchi_roundtrip][inchi_roundtrip]]).
+  + ~sort.awk~, an AWK script to sort the intermediate log by Jmol.
+
+* Analysis
+
+  The round trip is prepared by the generation of random/drug-like molecules
+  (DataWarrior) and subsequent generation of conformers; the later are saved as
+  ~molecules.sdf~ (v2000).  The pristine ~.zip~ archive of Jmol is decompressed,
+  the container file and scripts are added.  The executable bit is provided
+  globally by
+
+  #+begin_src bash :tangle no
+chmod u+x *
+  #+end_src
+
+  While connected with the remote NIH server, the round trip is performed by
+
+  #+begin_src bash :tangle no
+./Jmol.jar -ions jmol_sdf_b.spt > logfile.log
+  #+end_src
+
+  The intermediate results stored in the log file are processed
+
+  #+begin_src bash :tangle no
+./sort.awk logfile.log
+  #+end_src
+
+  and content stored in file ~failing.txt~ are copy-pasted for visual inspection
+  into the input mask of [[https://www.simolecule.com/cdkdepict/depict.html][cdkdepict]].  The display uses cdkdepict's optional
+  toggle "CIP stereo label"
+
+** Set of 100 molecules
+
+   Out of 100 molecules submitted, three apparently fail the round trip.  In two
+   instances, the visual inspection with cdkdepict displays the nitro group as
+   problematic.  In one case, formally, the absolute configuration of an ester
+   of a phosphoric acid is inverted.
+
+* Content
+
+  #+begin_src bash :exports code :results replace code
+tree  -L 1
+  #+end_src
+
+  #+RESULTS:
+  #+begin_src bash
+  .
+  ├── 100_molecules
+  ├── jmol_sdf_b.spt
+  ├── LICENSE
+  ├── README.org
+  └── sort.awk
+
+  1 directory, 4 files
+  #+end_src

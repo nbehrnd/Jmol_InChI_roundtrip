@@ -1,0 +1,9 @@
+O=[N]([O])c1cc2cc3cccc4c3c-5c2cc1.c6-5c7[C@H](O)C=C(O)[C@@H]8c7c(O)[nH]6.C4(O)=O.C8#N
+c1cc2cc3cc4ccc3c-5c2c6c1.c7-5c8c9c(O)[nH]7.[C@@H]8(O)C=C(O)[C@H]9C#N.C6(=O)O.[N]4(=O)O
+
+Clc1c2c-3cc/4c1.O2C.C\4=C/[N]([O])=O.c5-3c(O)[nH]c6c5[C@@H](O)CCC(=O)CC(O)=O.O6CC
+CCOc1c2c-3c(O)[nH]1.c-34c5c(Cl)cc\6c4.C/6=C\[N](=O)O.O5C.[C@H]2(O)CCC(=O)CC(=O)O
+
+[P@]1(O)(=O)OC(=O)CCCC.O1c2c[n]c(O)cc2
+CCCCC(=O)O[P@@](=O)(O)Oc1c[n]c(O)cc1
+
