@@ -28,9 +28,9 @@
     generation of libraries of random/drug-like molecules, exported as ~.sdf~
     (v2000 format).
   + Jmol (by <2022-03-03 Thu>, this is version 14.32.28)
-  + ~jmol_sdf_b.spt~, a script to run with Jmol for the local assignment of
-    SMILES, InChI, interaction of Jmol with the remote NIH server (commitsha
-    ~31794ca~, project [[https://github.com/nbehrnd/inchi_roundtrip][inchi_roundtrip]]).
+  + Jmol scripts (~*.spt~) to automate Jmol for the local assignment of SMILES,
+    InChI, interaction of Jmol with the remote NIH server.  These evolved from
+    project [[https://github.com/nbehrnd/inchi_roundtrip][inchi_roundtrip]], commitsha ~31794ca~.
   + ~sort.awk~, an AWK script to sort the intermediate log by Jmol.
 
 * Analysis
@@ -45,10 +45,11 @@
 chmod u+x *
   #+end_src
 
-  While connected with the remote NIH server, the round trip is performed by
+  While connected with the remote NIH server, the round trip is performed in the
+  pattern of e.g.,
 
   #+begin_src bash :tangle no
-./Jmol.jar -ions jmol_sdf_b.spt > logfile.log
+./Jmol.jar -ions jmol_roundtrip_smiles.spt > logfile.log
   #+end_src
 
   The intermediate results stored in the log file are processed
@@ -63,10 +64,10 @@ chmod u+x *
 
 ** Set of 100 molecules
 
-   Out of 100 molecules submitted, three apparently fail the round trip.  In two
-   instances, the visual inspection with cdkdepict displays the nitro group as
-   problematic.  In one case, formally, the absolute configuration of an ester
-   of a phosphoric acid is inverted.
+   Out of 100 molecules submitted with check by SMILES, three apparently fail
+   the round trip.  In two instances, the visual inspection with cdkdepict
+   displays the nitro group as problematic.  In one case, formally, the absolute
+   configuration of an ester of a phosphoric acid is inverted.
 
 * Jmol scripts
 
