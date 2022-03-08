@@ -297,11 +297,13 @@ tree  -L 1
   #+begin_src bash
   .
   ├── 100_molecules
-  ├── jmol_sdf_b.spt
+  ├── jmol_roundtrip_inchi_a.spt
+  ├── jmol_roundtrip_inchi_b.spt
+  ├── jmol_roundtrip_smiles.spt
   ├── LICENSE
   ├── README.org
   └── sort.awk
 
-  1 directory, 4 files
+  1 directory, 6 files
   #+end_src
 
