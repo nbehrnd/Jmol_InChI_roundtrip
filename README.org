@@ -45,10 +45,11 @@
 chmod u+x *
   #+end_src
 
-  While connected with the remote NIH server, the round trip is performed by
+  While connected with the remote NIH server, the round trip is performed in the
+  pattern of e.g.,
 
   #+begin_src bash :tangle no
-./Jmol.jar -ions jmol_sdf_b.spt > logfile.log
+./Jmol.jar -ions jmol_roundtrip_smiles.spt > logfile.log
   #+end_src
 
   The intermediate results stored in the log file are processed
@@ -63,10 +64,10 @@ chmod u+x *
 
 ** Set of 100 molecules
 
-   Out of 100 molecules submitted, three apparently fail the round trip.  In two
-   instances, the visual inspection with cdkdepict displays the nitro group as
-   problematic.  In one case, formally, the absolute configuration of an ester
-   of a phosphoric acid is inverted.
+   Out of 100 molecules submitted with check by SMILES, three apparently fail
+   the round trip.  In two instances, the visual inspection with cdkdepict
+   displays the nitro group as problematic.  In one case, formally, the absolute
+   configuration of an ester of a phosphoric acid is inverted.
 
 * Jmol scripts
 
