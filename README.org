@@ -64,11 +64,22 @@ chmod u+x *
 
 ** Set of 100 molecules
 
-   Out of 100 molecules submitted with check by SMILES, three apparently fail
-   the round trip.  In two instances, the visual inspection with cdkdepict
-   displays the nitro group as problematic.  In one case, formally, the absolute
-   configuration of an ester of a phosphoric acid is inverted.
+   Depending on the criterion applied, out of the 100 molecules submitted, there
+   are 3 (~smiles~), 99 (~inchi_a~), or 1 entry (~inchi_b~) failing the round
+   trip, i.e. with changing SMILES, or InChI string.
 
+   However, the current approach to probe the InChI strings /as such/ does not
+   seem to be a reliable enough to check if NIH's reconstruction of a structure
+   departing from an InChI string; many (but not all) structures with Jmol's
+   assigned SMILES prior and after the round trip displayed as formulae in
+   CDKDepict do appear identical in constitution and absolute configuration.
+
+   As revealed by monitoring the SMILES strings, nitro groups may undergo a
+   transformation to yield one of the two oxygens protonated.  These are seen as
+   failing entries in the series of ~inchi_a~, too.  The second motif identified
+   as problematic are esters of phosphoric acid; the round trip may yield an
+   inversion of the absolute configuration around the chiral centre (P).
+   
 * Jmol scripts, awk script
 
   This section contains the Jmol and AKW scripts eventually tangled/exported.
