@@ -167,6 +167,65 @@ print "" + i + " " + (d.smiles.find("SMILES", monitor_smiles_b) ? "success" : "f
 
 }
     #+end_src
+
+  + check by InChI, variant a
+
+    The following script considers the round trip successful if Jmol's assigned
+    InChI are invariant (~primary_inchi~ vs. ~secondary_inchi~).  This reuses
+    muted sections of the previously engaged Jmol script ~jmol_sdf_b.spt~.
+
+    #+begin_src js :tangle jmol_roundtrip_inchi_a.spt
+// name:    jmol_roundtrip_inchi_a.spt
+// author:  nbehrnd@yahoo.com 
+// licence: GPLv2, 2022
+// date:    2022-02-25 (YYYY-MM-DD)
+// edit:    2022-03-08 (YYYY-MM-DD)
+//
+// Deposit this script in the folder of Jmol.jar and molecules.sdf.  After
+// provison of the executable bit, run 
+//
+// ./Jmol.jar -ions jmol_roundtrip_inchi_a.spt > record.txt
+//
+// File molecules.sdf (in v2000 format) contains the models to process.
+// The record file lists the entry counter, success/failing label, SMILES
+// prior and after the round trip edit by Jmol and the remote NIH server.
+// For each individually probed model in the .sdf, the round trip is labeled
+// "success" if primary_inchi matches (prior round trip) and secondary_inchi
+// (after round trip) match each each other; else "failing".
+
+load MODELS {0, -1, 1} "molecules.sdf";
+var n = {*}.model.max;  // length of the model list
+
+var cdata = [];
+for (var i = 1; i <= n; i++){
+    frame @i;
+    primary_inchi = "";
+    secondary_inchi = "";
+    intermediate_smiles = "";
+    monitor_smiles_a = "";
+    monitor_smiles_b = "";
+    load_string = "";
+
+ primary_inchi = {thisModel}.find("inchi", "fixedH");
+ monitor_smiles_a = {thisModel}.find("smiles")
+ cdata.push( { "inchi":primary_inchi, "smiles": monitor_smiles_a } )
+}
+
+for (var i = 1; i <= n; i++){
+ var d = cdata[i];
+ load_string = "$" + d.inchi;
+ load @load_string;
+
+ secondary_inchi = {thisModel}.find("inchi", "fixedH");
+ monitor_smiles_b = {thisModel}.find("smiles")
+
+// reports 3 entries as failing the round trip, no false-positif; the best so far
+ print "" + i + " " + ((primary_inchi==secondary_inchi) ? "success" : "failing") +
+  " " + d.smiles + " " + monitor_smiles_b + " " + d.inchi + 
+  " " +  secondary_inchi;
+ 
+}
+    #+end_src
 * Content
 
   #+begin_src bash :exports code :results replace code
