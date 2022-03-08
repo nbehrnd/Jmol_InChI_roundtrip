@@ -2,7 +2,7 @@
 # author:   nbehrnd@yahoo.com
 # license:  GPLv2, 2022
 # date:     <2022-03-03 Thu>
-# edit:
+# edit:     <2022-03-08 Tue>
 
 * Intent
 
@@ -28,9 +28,9 @@
     generation of libraries of random/drug-like molecules, exported as ~.sdf~
     (v2000 format).
   + Jmol (by <2022-03-03 Thu>, this is version 14.32.28)
-  + ~jmol_sdf_b.spt~, a script to run with Jmol for the local assignment of
-    SMILES, InChI, interaction of Jmol with the remote NIH server (commitsha
-    ~31794ca~, project [[https://github.com/nbehrnd/inchi_roundtrip][inchi_roundtrip]]).
+  + Jmol scripts (~*.spt~) to automate Jmol for the local assignment of SMILES,
+    InChI, interaction of Jmol with the remote NIH server.  These evolved from
+    project [[https://github.com/nbehrnd/inchi_roundtrip][inchi_roundtrip]], commitsha ~31794ca~.
   + ~sort.awk~, an AWK script to sort the intermediate log by Jmol.
 
 * Analysis
@@ -68,6 +68,225 @@ chmod u+x *
    problematic.  In one case, formally, the absolute configuration of an ester
    of a phosphoric acid is inverted.
 
+* Jmol scripts
+
+  This section contains the Jmol scripts eventually tangled/exported.
+
+  + check by SMILES
+
+    The following Jmol script considers a Jmol InChI round trip successful if
+    Jmol's SMILES string is invariant.  I.e., this is a comparison of the SMILES
+    locally assigned based of the data array prior vs. Jmol's SMILES after NIH's
+    structure reconstruction.
+
+    #+begin_src js :tangle jmol_roundtrip_smiles.spt
+// name:    jmol_roundtrip_smiles.spt
+// author:  nbehrnd@yahoo.com 
+// licence: GPLv2, 2022
+// date:    2022-02-25 (YYYY-MM-DD)
+// edit:    2022-03-08 (YYYY-MM-DD)
+//
+// Thanks to continous constructive criticism by Robert Hanson.
+//
+// Deposit this script in the folder of Jmol.jar and molecules.sdf.  After
+// provison of the executable bit, run 
+//
+// ./Jmol.jar -ions jmol_roundtrip_smiles.spt > record.txt
+//
+// File molecules.sdf (in v2000 format) contains the models to process.
+// The record file lists the entry counter, success/failing label, SMILES
+// prior and after the round trip edit by Jmol and the remote NIH server.
+// For each individually probed model in the .sdf, the round trip is labeled
+// "success" if SMILES are invariant to the round trip; else "failing".
+
+load MODELS {0, -1, 1} "molecules.sdf";
+var n = {*}.model.max;  // length of the model list
+
+var cdata = [];
+for (var i = 1; i <= n; i++){
+    frame @i;
+    primary_inchi = "";
+    secondary_inchi = "";
+    intermediate_smiles = "";
+    monitor_smiles_a = "";
+    monitor_smiles_b = "";
+    load_string = "";
+
+ primary_inchi = {thisModel}.find("inchi", "fixedH");
+ monitor_smiles_a = {thisModel}.find("smiles")
+ cdata.push( { "inchi":primary_inchi, "smiles": monitor_smiles_a } )
+}
+
+for (var i = 1; i <= n; i++){
+ var d = cdata[i];
+ load_string = "$" + d.inchi;
+ load @load_string;
+
+ secondary_inchi = {thisModel}.find("inchi", "fixedH");
+ monitor_smiles_b = {thisModel}.find("smiles")
+
+// report back to the CLI:  4 entries, one false positif:
+// print "" + i + " " + (d.smiles.find("SMILES", monitor_smiles_b) and
+//   monitor_smiles_b.find("SMILES", d.smiles) and
+//   (d.inchi==secondary_inchi) ? "success" : "failing") +
+//   " " + d.smiles + " " + monitor_smiles_b + " " + d.inchi +
+//   " " +  secondary_inchi;
+
+// report back to the CLI:  4 entries, one false positif:
+//print "" + i + " " + (d.smiles.find("SMILES", monitor_smiles_b) and
+//   (d.inchi==secondary_inchi) ? "success" : "failing") +
+//   " " + d.smiles + " " + monitor_smiles_b + " " + d.inchi +
+//   " " +  secondary_inchi;
+
+// reports back only the false positif
+//print "" + i + " " + (
+//   (primary_inchi==secondary_inchi) ? "success" : "failing") +
+//   " " + d.smiles + " " + monitor_smiles_b + " " + d.inchi +
+//   " " +  secondary_inchi;
+
+// reports all entries as passing the round trip
+//print "" + i + " " + (
+//   (primary_smiles==secondary_smiles) ? "success" : "failing") +
+//   " " + d.smiles + " " + monitor_smiles_b + " " + d.inchi +
+//   " " +  secondary_inchi;
+
+// reports 3 entries as failing the round trip, no false-positif; the best so far a
+print "" + i + " " + (d.smiles.find("SMILES", monitor_smiles_b) ? "success" : "failing") +
+  " " + d.smiles + " " + monitor_smiles_b + " " + d.inchi + " " + primary_inchi + 
+  " " +  secondary_inchi;
+
+// reports 3 entries as failing the round trip, no false-positif; the best so far
+// print "" + i + " " + ((primary_inchi==secondary_inchi) ? "success" : "failing") +
+//  " " + d.smiles + " " + monitor_smiles_b + " " + d.inchi + 
+//  " " +  secondary_inchi;
+ 
+// // report back to the CLI: 1 false positive (CDKDepict the same)
+// print "" + i + " " + ((d.inchi==secondary_inchi) ? "success" : "failing") +
+//   " " + d.smiles + " " + monitor_smiles_b + " " + d.inchi +
+//   " " +  secondary_inchi;
+
+}
+    #+end_src
+
+  + check by InChI, variant a
+
+    The following script considers the round trip successful if Jmol's assigned
+    InChI are invariant (~primary_inchi~ vs. ~secondary_inchi~).  This reuses
+    muted sections of the previously engaged Jmol script ~jmol_sdf_b.spt~.
+
+    #+begin_src js :tangle jmol_roundtrip_inchi_a.spt
+// name:    jmol_roundtrip_inchi_a.spt
+// author:  nbehrnd@yahoo.com 
+// licence: GPLv2, 2022
+// date:    2022-02-25 (YYYY-MM-DD)
+// edit:    2022-03-08 (YYYY-MM-DD)
+//
+// Deposit this script in the folder of Jmol.jar and molecules.sdf.  After
+// provison of the executable bit, run 
+//
+// ./Jmol.jar -ions jmol_roundtrip_inchi_a.spt > record.txt
+//
+// File molecules.sdf (in v2000 format) contains the models to process.
+// The record file lists the entry counter, success/failing label, SMILES
+// prior and after the round trip edit by Jmol and the remote NIH server.
+// For each individually probed model in the .sdf, the round trip is labeled
+// "success" if primary_inchi matches (prior round trip) and secondary_inchi
+// (after round trip) match each each other; else "failing".
+
+load MODELS {0, -1, 1} "molecules.sdf";
+var n = {*}.model.max;  // length of the model list
+
+var cdata = [];
+for (var i = 1; i <= n; i++){
+    frame @i;
+    primary_inchi = "";
+    secondary_inchi = "";
+    intermediate_smiles = "";
+    monitor_smiles_a = "";
+    monitor_smiles_b = "";
+    load_string = "";
+
+ primary_inchi = {thisModel}.find("inchi", "fixedH");
+ monitor_smiles_a = {thisModel}.find("smiles")
+ cdata.push( { "inchi":primary_inchi, "smiles": monitor_smiles_a } )
+}
+
+for (var i = 1; i <= n; i++){
+ var d = cdata[i];
+ load_string = "$" + d.inchi;
+ load @load_string;
+
+ secondary_inchi = {thisModel}.find("inchi", "fixedH");
+ monitor_smiles_b = {thisModel}.find("smiles")
+
+// reports 3 entries as failing the round trip, no false-positif; the best so far
+ print "" + i + " " + ((primary_inchi==secondary_inchi) ? "success" : "failing") +
+  " " + d.smiles + " " + monitor_smiles_b + " " + d.inchi + 
+  " " +  secondary_inchi;
+ 
+}
+    #+end_src
+
+  + check by InChI, variant b
+
+    The following script considers the round trip successful if Jmol's assigned
+    InChI are invariant (~d.inchi~ vs. ~secondary_inchi~).  It is an approach
+    complementary to the one by ~jmol_roundtrip_inchi_a.spt~.  This reuses muted
+    sections of the previously engaged Jmol script ~jmol_sdf_b.spt~.
+
+    #+begin_src js :tangle jmol_roundtrip_inchi_b.spt
+// name:    jmol_roundtrip_inchi_b.spt
+// author:  nbehrnd@yahoo.com 
+// licence: GPLv2, 2022
+// date:    2022-02-25 (YYYY-MM-DD)
+// edit:    2022-03-08 (YYYY-MM-DD)
+//
+// Deposit this script in the folder of Jmol.jar and molecules.sdf.  After
+// provison of the executable bit, run 
+//
+// ./Jmol.jar -ions jmol_roundtrip_inchi_b.spt > record.txt
+//
+// File molecules.sdf (in v2000 format) contains the models to process.
+// The record file lists the entry counter, success/failing label, SMILES
+// prior and after the round trip edit by Jmol and the remote NIH server.
+// For each individually probed model in the .sdf, the round trip is labeled
+// "success" if d.inchi (prior round trip) and secondary_inchi (after NIH's
+// reconstruction, i.e. round trip) match each other.  Else, it assigns the
+// label  "failing".
+
+load MODELS {0, -1, 1} "molecules.sdf";
+var n = {*}.model.max;  // length of the model list
+
+var cdata = [];
+for (var i = 1; i <= n; i++){
+    frame @i;
+    primary_inchi = "";
+    secondary_inchi = "";
+    intermediate_smiles = "";
+    monitor_smiles_a = "";
+    monitor_smiles_b = "";
+    load_string = "";
+
+ primary_inchi = {thisModel}.find("inchi", "fixedH");
+ monitor_smiles_a = {thisModel}.find("smiles")
+ cdata.push( { "inchi":primary_inchi, "smiles": monitor_smiles_a } )
+}
+
+for (var i = 1; i <= n; i++){
+ var d = cdata[i];
+ load_string = "$" + d.inchi;
+ load @load_string;
+
+ secondary_inchi = {thisModel}.find("inchi", "fixedH");
+ monitor_smiles_b = {thisModel}.find("smiles")
+
+// report back to the CLI: 1 false positive (CDKDepict the same)
+ print "" + i + " " + ((d.inchi==secondary_inchi) ? "success" : "failing") +
+   " " + d.smiles + " " + monitor_smiles_b + " " + d.inchi +
+   " " +  secondary_inchi;
+}
+    #+end_src
+
 * Content
 
   #+begin_src bash :exports code :results replace code
@@ -78,10 +297,13 @@ tree  -L 1
   #+begin_src bash
   .
   ├── 100_molecules
-  ├── jmol_sdf_b.spt
+  ├── jmol_roundtrip_inchi_a.spt
+  ├── jmol_roundtrip_inchi_b.spt
+  ├── jmol_roundtrip_smiles.spt
   ├── LICENSE
   ├── README.org
   └── sort.awk
 
-  1 directory, 4 files
+  1 directory, 6 files
   #+end_src
+
