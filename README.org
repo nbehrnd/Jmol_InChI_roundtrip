@@ -69,9 +69,9 @@ chmod u+x *
    displays the nitro group as problematic.  In one case, formally, the absolute
    configuration of an ester of a phosphoric acid is inverted.
 
-* Jmol scripts
+* Jmol scripts, awk script
 
-  This section contains the Jmol scripts eventually tangled/exported.
+  This section contains the Jmol and AKW scripts eventually tangled/exported.
 
   + check by SMILES
 
@@ -286,6 +286,41 @@ for (var i = 1; i <= n; i++){
    " " + d.smiles + " " + monitor_smiles_b + " " + d.inchi +
    " " +  secondary_inchi;
 }
+    #+end_src
+
+  + AWK script
+
+    This script discerns round trips Jmol considers "successful" and "failing".
+    In case of the later, both SMILES strings prior and after the round trip are
+    reported for visual inspection e.g., on [[https://www.simolecule.com/cdkdepict/depict.html][CDKDepict]].
+
+    #+begin_src awk :tangle sort.awk
+#!/usr/bin/awk -f
+
+# name:    sort.awk
+# author:  nbehrnd@yahoo.com
+# license: GPLv2, 2022
+# date:    2022-03-03 (YYYY-MM-DD)
+# edit:
+
+# Jmol's report assigns the round trip either successful (i.e., both
+# SMILES and InChI string are invariant), or failing.  By calling this
+# awk script by
+#
+# awk -f sort.awk report.log
+#
+# `failing.txt` and `success.txt` written provide input for a visual
+# inspection by cdkdepict.[1]  The name of this script's input file
+# need not be `report.log`.
+#
+# [1] https://www.simolecule.com/cdkdepict/depict.html
+
+BEGIN {print "Script sorts entries in Jmol's log according to their status."};
+
+{if($2 == "failing"){print $3 "\n" $4 "\n" > "failing.txt"}};
+{if($2 == "success"){print $3 > "success.txt"}};
+
+END {print "See CDKdepict: https://www.simolecule.com/cdkdepict/depict.html"};
     #+end_src
 
 * Content
