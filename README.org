@@ -79,19 +79,19 @@ chmod u+x *
     locally assigned based of the data array prior vs. Jmol's SMILES after NIH's
     structure reconstruction.
 
-    #+begin_src js :tangle jmol_sdf_b.spt
-// name:    jmol_sdf_b.spt
+    #+begin_src js :tangle jmol_roundtrip_smiles.spt
+// name:    jmol_roundtrip_smiles.spt
 // author:  nbehrnd@yahoo.com 
 // licence: GPLv2, 2022
 // date:    2022-02-25 (YYYY-MM-DD)
-// edit:    2022-03-03 (YYYY-MM-DD)
+// edit:    2022-03-08 (YYYY-MM-DD)
 //
 // Thanks to continous constructive criticism by Robert Hanson.
 //
 // Deposit this script in the folder of Jmol.jar and molecules.sdf.  After
 // provison of the executable bit, run 
 //
-// ./Jmol.jar -ions jmol_sdf_b.spt > record.txt
+// ./Jmol.jar -ions jmol_roundtrip_smiles.spt > record.txt
 //
 // File molecules.sdf (in v2000 format) contains the models to process.
 // The record file lists the entry counter, success/failing label, SMILES
