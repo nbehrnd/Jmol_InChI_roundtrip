@@ -2,7 +2,7 @@
 # author:   nbehrnd@yahoo.com
 # license:  GPLv2, 2022
 # date:     <2022-03-03 Thu>
-# edit:     <2022-03-08 Tue>
+# edit:     <2022-03-09 Wed>
 
 * Intent
 
@@ -79,6 +79,29 @@ chmod u+x *
    failing entries in the series of ~inchi_a~, too.  The second motif identified
    as problematic are esters of phosphoric acid; the round trip may yield an
    inversion of the absolute configuration around the chiral centre (P).
+
+** Set of 1003 molecules
+
+   Monitoring either SMILES (~smiles~) or InChI (~inchi_b~, comparison of
+   ~d.inchi~ vs. ~secondary_inchi~), a larger set of 1003 entries was submitted
+   to the round trip.  During the round trip, for 961 entries (95.8%) and
+   invariant SMILES string was observed.  For 954 entries (95.1%), the InChI
+   string prior the round trip matched the one after NIH's reconstruction.
+
+   CDKDepict's visualization of formulae by SMILES strings prior/after about
+   failed round trips reveal imines as problematic (interconversion of (E) to
+   (Z) configuration).
+
+   On occasion, the representation of N-heteroaromatic cycles (e.g., imidazole,
+   pyrimidine) with radical dot and Thiele ring, e.g. for
+   #+begin_quote
+   [S@@](O)(=O)(=O)CC(=O)OC(=O)c1c2[n](C)c3[n]1CC(=O)OC(=O)c4ccccc4.C2O.C3OC
+   CN1[C]2N3C4=C1CO.C3C(=O)OC(=O)c5ccccc5.C2OC.C4(=O)OC(=O)C[S@](=O)(=O)O
+
+   Oc1c(O)c2ccccc2[n]c1C1=CNc2c(O)[n]c(C)[n]([O])c21
+   #+end_quote
+   from file ~failing_1003_mol_smiles.log~ is surprising; the cause is not yet
+   identified.
    
 * Jmol scripts, awk script
 
@@ -336,13 +359,14 @@ END {print "See CDKdepict: https://www.simolecule.com/cdkdepict/depict.html"};
 
 * Content
 
-  #+begin_src bash :exports code :results replace code
+  #+begin_src bash :exports code both :results replace code
 tree  -L 1
   #+end_src
 
   #+RESULTS:
   #+begin_src bash
   .
+  ├── 1003_molecules
   ├── 100_molecules
   ├── jmol_roundtrip_inchi_a.spt
   ├── jmol_roundtrip_inchi_b.spt
@@ -351,6 +375,6 @@ tree  -L 1
   ├── README.org
   └── sort.awk
 
-  1 directory, 6 files
+  2 directories, 6 files
   #+end_src
 
